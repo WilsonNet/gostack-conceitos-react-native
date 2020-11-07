@@ -13,7 +13,6 @@ import {
 
 export default function App() {
   const [repositories, setRepositories] = useState([]);
-  console.log('Oeeeeeee sos');
   useEffect(() => {
     api
       .get('repositories')
@@ -27,7 +26,20 @@ export default function App() {
 
   async function handleLikeRepository(id) {
     // Implement "Like Repository" functionality
-    api.post(`repositories/${id}/like`);
+    try {
+      const response = await api.post(`repositories/${id}/like`);
+      const likedRepository = response.data;
+      const updatedRepositories = repositories.map((repository) =>
+        repository.id === likedRepository.id ? likedRepository : repository
+      );
+      console.log(
+        'handleLikeRepository -> updatedRepositories',
+        updatedRepositories
+      );
+      setRepositories(updatedRepositories);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -63,7 +75,7 @@ export default function App() {
                 style={styles.button}
                 onPress={() => handleLikeRepository(repository.id)}
                 // Remember to replace "1" below with repository ID: {`like-button-${repository.id}`}
-                testID={`like-button-${repository.like}`}
+                testID={`like-button-${repository.id}`}
               >
                 <Text style={styles.buttonText}>Curtir</Text>
               </TouchableOpacity>
